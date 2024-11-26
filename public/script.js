@@ -46,8 +46,6 @@ const fullStringInput = document.getElementById('fullstring');
 const qrcodeContainer = document.getElementById('qrcode');
 const canvas = document.getElementById('badgeCanvas');
 const ctx = canvas.getContext('2d');
-
-// Add this near the top of the file with other constants
 const backgroundImage = new Image();
 backgroundImage.src = './back.png';
 
@@ -73,7 +71,7 @@ function updateFullString() {
     // Join the values and create the full string
     fullStringInput.value = `${id}iD^${orderedValues.join('^')}^`;
     generateQRCode();
-    drawBadge(); // Add this line
+    drawBadge();
 }
 
 function generateQRCode() {
@@ -81,10 +79,10 @@ function generateQRCode() {
     const qr = qrcode(0, 'L');
     qr.addData(fullStringInput.value);
     qr.make();
-    qrcodeContainer.innerHTML = qr.createImgTag(2); // Reduced scale factor to fit 100px
+    qrcodeContainer.innerHTML = qr.createImgTag(2);
 }
 
-// Debounce function to limit API calls
+// Debounce function to reduce API calls
 function debounce(func, delay) {
     let timeoutId;
     return function (...args) {
@@ -135,7 +133,7 @@ const handleGitHubInput = debounce(async (event) => {
         const userData = await fetchGitHubUser(username);
         updateFormWithGitHubData(userData);
     }
-}, 250); // 250ms delay
+}, 250); // 250ms delay in key presses before fetching data
 
 // Add event listeners to GitHub handle input
 const githubHandleInput = document.getElementById('githubhandle');
@@ -190,7 +188,7 @@ fullStringInput.addEventListener('keydown', (event) => {
     }
 });
 
-// Modify the drawBadge function
+// Draw the badge to a canvas element
 function drawBadge() {
     // Enable crisp font rendering
     ctx.textRendering = 'optimizeLegibility';
@@ -246,7 +244,8 @@ function drawBadge() {
     ctx.fillText(jobtitle, leftMargin, jobTitleY);
     ctx.fillText(githubhandle, leftMargin, githubHandleY);
 
-    // Convert to 2-bit black and white after drawing
+    // Convert to 2-bit black and white after drawing so you get an accurate preview
+    // of e-ink display
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const bwCanvas = convertTo2BitBW(imageData);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -264,9 +263,9 @@ Promise.all([
 // Update the event listener to handle resize
 window.addEventListener('resize', drawBadge);
 
-// Add this function to convert image data to 2-bit black and white
+// Convert image data to 2-bit black and white for e-Ink display
 function convertTo2BitBW(imageData) {
-    const threshold = 200;
+    const threshold = 200;  // Adjustable threshold for b/w conversion
     const newCanvas = document.createElement('canvas');
     newCanvas.width = imageData.width;
     newCanvas.height = imageData.height;
@@ -294,7 +293,7 @@ function convertTo2BitBW(imageData) {
     return newCanvas;
 }
 
-// Modify the downloadBadge function to use the conversion
+// DownloadBadge function to get a PNG file from the canvas
 function downloadBadge() {
     const canvas = document.getElementById('badgeCanvas');
     const link = document.createElement('a');
@@ -324,7 +323,7 @@ async function copyToBadge() {
                 await writer.write(command + '\r\n');
             }
 
-            // Enter raw REPL mode
+            // Enter raw REPL mode in Micropython
             await sendCommand('\x03'); // Ctrl-C
             await sendCommand('\x01'); // Ctrl-A
             await sendCommand('');     // Clear the input buffer
