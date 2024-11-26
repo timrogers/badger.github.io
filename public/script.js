@@ -262,7 +262,7 @@ window.addEventListener('resize', drawBadge);
 
 // Add this function to convert image data to 2-bit black and white
 function convertTo2BitBW(imageData) {
-    const threshold = 128;
+    const threshold = 200;
     const newCanvas = document.createElement('canvas');
     newCanvas.width = imageData.width;
     newCanvas.height = imageData.height;
