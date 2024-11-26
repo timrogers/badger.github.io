@@ -210,27 +210,30 @@ function drawBadge() {
     ctx.font = 'bold 24px "Mona Sans"';
     const lastname = document.getElementById('lastname').value;
     ctx.fillText(lastname, leftMargin, 45);
-    
-    // Calculate dynamic font size for job title
-    const jobtitle = document.getElementById('jobtitle').value;
-    let jobtitleFontSize = 14;
-    ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
-    while (ctx.measureText(jobtitle).width > canvas.width - 40 && jobtitleFontSize > 8) {
-        jobtitleFontSize--;
-        ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
-    }
-    
+        
     // Get GitHub handle
     let githubhandle = document.getElementById('githubhandle').value;
     if (githubhandle && !githubhandle.startsWith('@')) {
         githubhandle = '@' + githubhandle;
     }
     
+    // Calculate dynamic font size for job title
+    let jobtitleFontSize = 16;  // Default font size
+    const jobtitle = document.getElementById('jobtitle').value;
+    
+    if (jobtitle) {  // Only calculate new size if jobtitle is not empty
+        ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
+        while (ctx.measureText(jobtitle).width > canvas.width - 40 && jobtitleFontSize > 8) {
+            jobtitleFontSize--;
+            ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
+        }
+    }
+    
     // Calculate text metrics to fit job title within canvas
     ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
-    const fontMetrics = ctx.measureText(jobtitle);
+    const fontMetrics = ctx.measureText("Jobby");
     const textHeight = fontMetrics.actualBoundingBoxAscent + fontMetrics.actualBoundingBoxDescent;
-    const lineHeightGap = textHeight * 0.5; 
+    const lineHeightGap = textHeight * 0.3; 
 
     const githubHandleY = (canvas.height) - bottomMargin - textHeight;
     const jobTitleY = githubHandleY - textHeight - lineHeightGap;
@@ -238,6 +241,12 @@ function drawBadge() {
     // Draw the text
     ctx.fillText(jobtitle, leftMargin, jobTitleY);
     ctx.fillText(githubhandle, leftMargin, githubHandleY);
+
+    // Convert to 2-bit black and white after drawing
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const bwCanvas = convertTo2BitBW(imageData);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bwCanvas, 0, 0);
 }
 
 // Replace the font loading with combined font and image loading
@@ -284,15 +293,9 @@ function convertTo2BitBW(imageData) {
 // Modify the downloadBadge function to use the conversion
 function downloadBadge() {
     const canvas = document.getElementById('badgeCanvas');
-    const ctx = canvas.getContext('2d');
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    // Convert to 2-bit black and white
-    const bwCanvas = convertTo2BitBW(imageData);
-    
     const link = document.createElement('a');
     link.download = 'badge.png';
-    link.href = bwCanvas.toDataURL('image/png');
+    link.href = canvas.toDataURL('image/png');
     link.click();
 }
 
