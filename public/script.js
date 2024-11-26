@@ -58,9 +58,9 @@ function updateFullString() {
     const fieldValues = {};
     inputs.forEach(input => {
         if (input.name === 'githubhandle') {
-            fieldValues[input.name] = input.value ? `@${input.value}` : '';
+            fieldValues[input.name] = input.value ? `@${input.value}`.trim() : '';
         } else {
-            fieldValues[input.name] = input.value;
+            fieldValues[input.name] = input.value.trim();
         }
     });
 
@@ -81,7 +81,7 @@ function generateQRCode() {
     const qr = qrcode(0, 'L');
     qr.addData(fullStringInput.value);
     qr.make();
-    qrcodeContainer.innerHTML = qr.createImgTag(5);
+    qrcodeContainer.innerHTML = qr.createImgTag(2); // Reduced scale factor to fit 100px
 }
 
 // Debounce function to limit API calls
@@ -96,13 +96,20 @@ function debounce(func, delay) {
 // Function to fetch GitHub user data
 async function fetchGitHubUser(username) {
     try {
-        const response = await fetch(`https://api.github.com/users/${username}`);
-        if (!response.ok) throw new Error('User not found');
-        return await response.json();
+        if (username.startsWith('@')) {
+            username = username.slice(1);
+        }
+        if (username) 
+        {
+            const response = await fetch(`https://api.github.com/users/${username}`);
+            if (!response.ok) throw new Error('User not found');
+            return await response.json();
+        }
+
     } catch (error) {
         console.error('Error fetching GitHub user:', error);
-        return null;
     }
+    return null;
 }
 
 // Add this helper function before updateFormWithGitHubData
@@ -138,9 +145,6 @@ githubHandleInput.addEventListener('blur', handleGitHubInput);
 // Modify the input event listeners to clean job titles
 inputs.forEach(input => {
     input.addEventListener('input', (e) => {
-        if (e.target.id === 'jobtitle') {
-            e.target.value = cleanJobTitle(e.target.value);
-        }
         updateFullString();
     });
 });
