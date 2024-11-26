@@ -299,9 +299,34 @@ function downloadBadge() {
     link.click();
 }
 
-// Add this function at the end of the file
-function downloadPythonCode() {
-    const pythonCode = `import badger2040
+// Add the copyToBadge function to handle the file transfer over serial using the Web Serial API
+async function copyToBadge() {
+    if ('serial' in navigator) {
+        try {
+            // Request a serial port
+            const port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 });
+
+            const encoder = new TextEncoderStream();
+            const writableStreamClosed = encoder.readable.pipeTo(port.writable);
+            const writer = encoder.writable.getWriter();
+
+            const decoder = new TextDecoderStream();
+            const readableStreamClosed = port.readable.pipeTo(decoder.writable);
+            const reader = decoder.readable.getReader();
+
+            // Helper function to send data
+            async function sendCommand(command) {
+                await writer.write(command + '\r\n');
+            }
+
+            // Enter raw REPL mode
+            await sendCommand('\x03'); // Ctrl-C
+            await sendCommand('\x01'); // Ctrl-A
+            await sendCommand('');     // Clear the input buffer
+
+            // Prepare files to send
+            const pythonCode = `import badger2040
 import pngdec
 import time, os
 
@@ -319,10 +344,49 @@ except (OSError, RuntimeError):
 
 display.update()`;
 
-    const blob = new Blob([pythonCode], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.download = 'main.py';
-    link.href = URL.createObjectURL(blob);
-    link.click();
-    URL.revokeObjectURL(link.href);
+            // Get canvas image data as binary
+            const canvas = document.getElementById('badgeCanvas');
+            const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const imageArrayBuffer = await imageBlob.arrayBuffer();
+            const imageUint8Array = new Uint8Array(imageArrayBuffer);
+
+            // Send main.py
+            await sendCommand(`f = open('main.py', 'w')`);
+            const pythonLines = pythonCode.split('\n');
+            for (const line of pythonLines) {
+                await sendCommand(`f.write('${line}\\n')`);
+            }
+            await sendCommand(`f.close()`);
+
+            // Send badge.png
+            await sendCommand(`f = open('badge.png', 'wb')`);
+            const chunkSize = 256;
+            for (let i = 0; i < imageUint8Array.length; i += chunkSize) {
+                const chunk = imageUint8Array.slice(i, i + chunkSize);
+                const hexString = Array.from(chunk).map(b => b.toString(16).padStart(2, '0')).join('');
+                await sendCommand(`f.write(bytes.fromhex('${hexString}'))`);
+            }
+            await sendCommand(`f.close()`);
+
+            // Reset device
+            await sendCommand('import machine; machine.reset()'); // Reboot badge
+
+            // Exit raw REPL mode
+            await sendCommand('\x04'); // Ctrl-D
+
+            // Close streams and port
+            writer.close();
+            await writableStreamClosed;
+            reader.cancel();
+            await readableStreamClosed;
+            await port.close();
+
+            //alert('Files transferred successfully!');
+        } catch (error) {
+            console.error('Error:', error);
+            //alert('An error occurred while transferring files.');
+        }
+    } else {
+        alert('Web Serial API not supported in this browser.');
+    }
 }
