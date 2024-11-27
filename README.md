@@ -2,7 +2,7 @@
 
 If you have a GitHub Universe badge, this little SPA web app will help you customize it from the comfort of your own web browser.  As long as that web browser supports the Web Serial API's (i.e. Chrome or Edge)
 
-[Badge Press](https://badger.github.io/qrcreator/)
+[Badge Press](https://badger.github.io/)
 
 First of all, type your GitHub handle.  A background process will then try to guess the rest of the fields based on the data in your profile but you can easily override them.
 
