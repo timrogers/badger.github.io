@@ -26,7 +26,7 @@
             <label for="pronouns">Pronouns:</label>
             <input type="text" id="pronouns" name="pronouns">
         </div>
-        <div class="qr-section">
+        <div class="preview-section">
             <div class="badge-preview">
                 <canvas id="badgeCanvas" width="296" height="128"></canvas>
                 <div class="badge-preview-buttons">
@@ -50,6 +50,21 @@
             <div class="input-container">
                 <label for="fullstring">Full String:</label>
                 <input type="text" id="fullstring" name="fullstring" readonly>
+            </div>
+            <div class="help-container">
+                <p>
+                    Fill in the fields on the left to generate a badge image. The preview above will be updated in real-time as you type.
+                    Connect your badger over USB, then click the "Copy to Badge" button to copy the badge to your clipboard.
+                    Note that this requires the Web Serial API's which work in Chrome and Edge on the desktop, but not currently Safari
+                </p>
+                <p>
+                    To learn more about your GitHub Badger 2350, <a href=""https://github.com/badger/home">visit the repo</a>.
+                    You can also edit the code running on your Badger directly using the <a href="https://viper-ide.org/">Viper Web IDE</a> or 
+                    you can install <a href="https://thonny.org/">Thonny</a> locally.
+                </p>
+                <p>
+                    The GitHub Badger 2350 was created in partnership with the wonderful team at <a href="https://pimoroni.com/">Pimoroni</a>.
+                </p>
             </div>
         </div>
     </div>
