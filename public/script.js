@@ -275,10 +275,10 @@ function convertTo2BitBW(imageData) {
     const newImageData = ctx.createImageData(imageData.width, imageData.height);
     
     for (let i = 0; i < imageData.data.length; i += 4) {
-        // Convert to grayscale first
-        const gray = (imageData.data[i] * 0.299 + 
-                     imageData.data[i + 1] * 0.587 + 
-                     imageData.data[i + 2] * 0.114);
+        // Convert to grayscale first using standard BT.2100 / HDR factors
+        const gray = (imageData.data[i] * 0.2627 + 
+                     imageData.data[i + 1] * 0.678 + 
+                     imageData.data[i + 2] * 0.0593);
         
         // Convert to black or white (2-bit)
         const bw = gray < threshold ? 0 : 255;
