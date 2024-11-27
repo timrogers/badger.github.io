@@ -331,7 +331,6 @@ async function copyToBadge() {
             // Prepare files to send
             const pythonCode = `import badger2040
 import pngdec
-import time, os
 
 display = badger2040.Badger2040()
 png = pngdec.PNG(display.display)
