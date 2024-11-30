@@ -32,10 +32,8 @@ function loadInitialData() {
             githubhandle: 'mona'
         });
     }
-    
-    // Update full string after setting initial values
-    updateFullString();
-    drawBadge(); // Add this line
+
+    drawBadge();
 }
 
 // Call loadInitialData when the page loads
@@ -48,48 +46,6 @@ const canvas = document.getElementById('badgeCanvas');
 const ctx = canvas.getContext('2d');
 const backgroundImage = new Image();
 backgroundImage.src = './back.png';
-
-function updateFullString() {
-    const id = '01234567890'; // Static ID for this example
-    
-    // Create an object to store field values by name
-    const fieldValues = {};
-    inputs.forEach(input => {
-        if (input.name === 'githubhandle') {
-            fieldValues[input.name] = input.value ? `@${input.value}`.trim() : '';
-        } else {
-            fieldValues[input.name] = input.value.trim();
-        }
-    });
-
-    // Define the order of fields
-    const fieldOrder = ['firstname', 'lastname', 'company', 'jobtitle', 'pronouns', 'githubhandle'];
-
-    // Map the ordered fields to their values
-    const orderedValues = fieldOrder.map(fieldName => fieldValues[fieldName] || '');
-
-    // Join the values and create the full string
-    fullStringInput.value = `${id}iD^${orderedValues.join('^')}^`;
-    generateQRCode();
-    drawBadge();
-}
-
-function generateQRCode() {
-    qrcodeContainer.innerHTML = '';
-    const qr = qrcode(0, 'L');
-    qr.addData(fullStringInput.value);
-    qr.make();
-    qrcodeContainer.innerHTML = qr.createImgTag(2);
-}
-
-// Debounce function to reduce API calls
-function debounce(func, delay) {
-    let timeoutId;
-    return function (...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func.apply(this, args), delay);
-    };
-}
 
 // Function to fetch GitHub user data
 async function fetchGitHubUser(username) {
@@ -143,50 +99,11 @@ githubHandleInput.addEventListener('blur', handleGitHubInput);
 // Modify the input event listeners to clean job titles
 inputs.forEach(input => {
     input.addEventListener('input', (e) => {
-        updateFullString();
+        drawBadge();
     });
 });
 
-updateFullString(); // Initial generation
-
-const otherInputs = document.querySelectorAll('input:not(#fullstring)');
-
-function parseFullString(fullString) {
-    const parts = fullString.split('^');
-    const id = parts[0].replace('iD', '');
-    const fields = ['firstname', 'lastname', 'company', 'jobtitle', 'pronouns', 'githubhandle'];
-    const values = parts.slice(1, -1); // Exclude the last empty element
-
-    const result = { id };
-    fields.forEach((field, index) => {
-        result[field] = values[index] || '';
-    });
-
-    if (result.githubhandle && !result.githubhandle.startsWith('@')) {
-        result.githubhandle = '@' + result.githubhandle;
-    }
-
-    return result;
-}
-
-function updateFieldsFromFullString() {
-    const parsed = parseFullString(fullStringInput.value);
-    
-    otherInputs.forEach(input => {
-        if (parsed.hasOwnProperty(input.name)) {
-            input.value = parsed[input.name];
-        }
-    });
-}
-
-const debounceUpdateFields = debounce(updateFieldsFromFullString, 250);
-
-fullStringInput.addEventListener('input', debounceUpdateFields);
-fullStringInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        updateFieldsFromFullString();
-    }
-});
+drawBadge();
 
 // Draw the badge to a canvas element
 function drawBadge() {
@@ -291,15 +208,6 @@ function convertTo2BitBW(imageData) {
     
     ctx.putImageData(newImageData, 0, 0);
     return newCanvas;
-}
-
-// DownloadBadge function to get a PNG file from the canvas
-function downloadBadge() {
-    const canvas = document.getElementById('badgeCanvas');
-    const link = document.createElement('a');
-    link.download = 'badge.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
 }
 
 // Add the copyToBadge function to handle the file transfer over serial using the Web Serial API

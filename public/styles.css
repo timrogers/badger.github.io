@@ -36,14 +36,6 @@ body {
     gap: 20px;
     justify-content: center;
 }
-.qr-container {
-    margin-bottom: 10px;
-    display: none; /* hide by default */
-}
-.input-container {
-    width: 100%;
-    display: none; /* hide by default */
-}
 .badge-preview {
     width: 592px;
     height: 256px;
