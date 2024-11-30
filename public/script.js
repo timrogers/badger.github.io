@@ -24,11 +24,10 @@ function loadInitialData() {
     } else {
         // Pre-populate with user ID 'mona'
         setInputValues({
-            firstname: 'Mona',
-            lastname: 'Lisa',
-            company: 'GitHub',
-            jobtitle: 'Octocat',
-            pronouns: '',
+            line1: 'Mona',
+            line2: 'Lisa',
+            line3: 'Octocat',
+            line4: 'GitHub',
             githubhandle: 'mona'
         });
     }
@@ -66,37 +65,45 @@ async function fetchGitHubUser(username) {
     return null;
 }
 
-// Add this helper function before updateFormWithGitHubData
 function cleanJobTitle(title) {
     return title.replace(/\s*@\w+$/, '').trim();
+}
+
+function updateInput(input, value) {
+    const maxLength = parseInt(input.getAttribute('maxlength'));
+    if (maxLength && value.length > maxLength) {
+        input.value = value.slice(0, maxLength);
+    } else {
+        input.value = value;
+    }
 }
 
 // Function to update form fields with GitHub data
 function updateFormWithGitHubData(data) {
     if (data) {
-        document.getElementById('firstname').value = data.name ? data.name.split(' ')[0] : '';
-        document.getElementById('lastname').value = data.name ? data.name.split(' ').slice(1).join(' ') : '';
-        document.getElementById('company').value = data.company ? data.company.replace(/^@/, '') : '';
-        document.getElementById('jobtitle').value = data.bio ? cleanJobTitle(data.bio.split('.')[0].trim()) : '';
-        updateFullString(); // Update the full string with new data
+        updateInput(document.getElementById('line1'), data.name ? data.name.split(' ')[0] : '');
+        updateInput(document.getElementById('line2'), data.name ? data.name.split(' ').slice(1).join(' ') : '');
+        updateInput(document.getElementById('line3'), data.bio ? cleanJobTitle(data.bio.split('.')[0].trim()) : '');
+        updateInput(document.getElementById('line4'), data.company);
     }
 }
 
 // Event handler for GitHub handle input
-const handleGitHubInput = debounce(async (event) => {
-    const username = event.target.value.trim();
+const populateFieldsFromGitHubProfile = async () => {
+    const githubHandleInput = document.getElementById('githubhandle');
+    const username = githubHandleInput.value.trim();
+
     if (username) {
         const userData = await fetchGitHubUser(username);
         updateFormWithGitHubData(userData);
+        drawBadge();
     }
-}, 250); // 250ms delay in key presses before fetching data
+}
 
 // Add event listeners to GitHub handle input
-const githubHandleInput = document.getElementById('githubhandle');
-githubHandleInput.addEventListener('input', handleGitHubInput);
-githubHandleInput.addEventListener('blur', handleGitHubInput);
+const generateBadgeFromGitHubHandleButton = document.getElementById('populatefromgithubhandle');
+generateBadgeFromGitHubHandleButton.addEventListener('click', populateFieldsFromGitHubProfile);
 
-// Modify the input event listeners to clean job titles
 inputs.forEach(input => {
     input.addEventListener('input', (e) => {
         drawBadge();
@@ -122,44 +129,21 @@ function drawBadge() {
     // Draw first name in bold
     ctx.font = 'bold 32px "Mona Sans"';
     ctx.fillStyle = '#000000';
-    const firstname = document.getElementById('firstname').value;
-    ctx.fillText(firstname, leftMargin, topMargin);
+    const line1 = document.getElementById('line1').value;
+    ctx.fillText(line1, leftMargin, topMargin);
     
     // Draw last name in bold
     ctx.font = 'bold 24px "Mona Sans"';
-    const lastname = document.getElementById('lastname').value;
-    ctx.fillText(lastname, leftMargin, 45);
-        
-    // Get GitHub handle
-    let githubhandle = document.getElementById('githubhandle').value;
-    if (githubhandle && !githubhandle.startsWith('@')) {
-        githubhandle = '@' + githubhandle;
-    }
+    const line2 = document.getElementById('line2').value;
+    ctx.fillText(line2, leftMargin, 45);
     
     // Calculate dynamic font size for job title
-    let jobtitleFontSize = 16;  // Default font size
-    const jobtitle = document.getElementById('jobtitle').value;
-    
-    if (jobtitle) {  // Only calculate new size if jobtitle is not empty
-        ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
-        while (ctx.measureText(jobtitle).width > canvas.width - 40 && jobtitleFontSize > 8) {
-            jobtitleFontSize--;
-            ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
-        }
-    }
-    
-    // Calculate text metrics to fit job title within canvas
-    ctx.font = `${jobtitleFontSize}px "Mona Sans"`;
-    const fontMetrics = ctx.measureText("Jobby");
-    const textHeight = fontMetrics.actualBoundingBoxAscent + fontMetrics.actualBoundingBoxDescent;
-    const lineHeightGap = textHeight * 0.3; 
+    ctx.font = `16px "Mona Sans"`;
+    const line3 = document.getElementById('line3').value;
+    ctx.fillText(line3, leftMargin, 85);
 
-    const githubHandleY = (canvas.height) - bottomMargin - textHeight;
-    const jobTitleY = githubHandleY - textHeight - lineHeightGap;
-    
-    // Draw the text
-    ctx.fillText(jobtitle, leftMargin, jobTitleY);
-    ctx.fillText(githubhandle, leftMargin, githubHandleY);
+    const line4 = document.getElementById('line4').value;
+    ctx.fillText(line4, leftMargin, 106);
 
     // Convert to 2-bit black and white after drawing so you get an accurate preview
     // of e-ink display

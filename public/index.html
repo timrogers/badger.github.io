@@ -1,38 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Badger Generator</title>
-    <link rel="stylesheet" href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css" />
     <link rel="stylesheet" href="./styles.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <link rel="preload" href="./Mona-Sans.woff2" as="font" type="font/woff2" crossorigin>
 </head>
+
 <body>
     <div class="container">
         <div class="input-section">
             <h1>Badger Press</h1>
             <label for="githubhandle">GitHub Handle:</label>
             <input type="text" id="githubhandle" name="githubhandle">
-            <label for="firstname">First Name:</label>
-            <input type="text" id="firstname" name="firstname">
-            <label for="lastname">Last Name:</label>
-            <input type="text" id="lastname" name="lastname">
-            <label for="company">Company:</label>
-            <input type="text" id="company" name="company">
-            <label for="jobtitle">Job Title:</label>
-            <input type="text" id="jobtitle" name="jobtitle">
-            <label for="pronouns">Pronouns:</label>
-            <input type="text" id="pronouns" name="pronouns">
+
+            <button id="generatefromgithubhandle" class="btn mt-2">Generate badge from GitHub profile</button>
+
+            <hr />
+
+            <label for="line1">Line 1:</label>
+            <input type="text" id="line1" name="line1" maxlength="13">
+            <label for="line2">Line 2:</label>
+            <input type="text" id="line2" name="line2" maxlength="17">
+            <label for="line3">Line 3:</label>
+            <input type="text" id="line3" name="line3" maxlength="36">
+            <label for="line4">Line 4:</label>
+            <input type="text" id="line4" name="line4" maxlength="36">
         </div>
         <div class="preview-section">
             <div class="badge-preview">
                 <canvas id="badgeCanvas" width="296" height="128"></canvas>
                 <div class="badge-preview-buttons">
                     <button class="btn btn-primary mt-2" onclick="copyToBadge()">
-                        <svg class="octicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                            <path d="M7.47 10.78a.75.75 0 0 0 1.06 0l3.75-3.75a.75.75 0 0 0-1.06-1.06L8.75 8.44V1.75a.75.75 0 0 0-1.5 0v6.69L4.78 5.97a.75.75 0 0 0-1.06 1.06l3.75 3.75zM3.75 13a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5z"></path>
+                        <svg class="octicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16"
+                            height="16">
+                            <path
+                                d="M7.47 10.78a.75.75 0 0 0 1.06 0l3.75-3.75a.75.75 0 0 0-1.06-1.06L8.75 8.44V1.75a.75.75 0 0 0-1.5 0v6.69L4.78 5.97a.75.75 0 0 0-1.06 1.06l3.75 3.75zM3.75 13a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5z">
+                            </path>
                         </svg>
                         Copy to Badge
                     </button>
@@ -40,17 +48,23 @@
             </div>
             <div class="help-container">
                 <p>
-                    Fill in the fields on the left to generate a badge image. The preview above will be updated in real-time as you type.
-                    Connect your badger over USB, then click the "Copy to Badge" button to copy the badge to your clipboard.
-                    Note that this requires the Web Serial API's which work in Chrome and Edge on the desktop, but not currently Safari
+                    Fill in the fields on the left to generate a badge image. The preview above will be updated in
+                    real-time as you type.
+                    Connect your badger over USB, then click the "Copy to Badge" button to copy the badge to your
+                    clipboard.
+                    Note that this requires the Web Serial API's which work in Chrome and Edge on the desktop, but not
+                    currently Safari
                 </p>
                 <p>
-                    To learn more about your GitHub Badger 2350, <a href=""https://github.com/badger/home">visit the repo</a>.
-                    You can also edit the code running on your Badger directly using the <a href="https://viper-ide.org/">Viper Web IDE</a> or 
+                    To learn more about your GitHub Badger 2350, <a href="" https://github.com/badger/home">visit the
+                        repo</a>.
+                    You can also edit the code running on your Badger directly using the <a
+                        href="https://viper-ide.org/">Viper Web IDE</a> or
                     you can install <a href="https://thonny.org/">Thonny</a> locally.
                 </p>
                 <p>
-                    The GitHub Badger 2350 was created in partnership with the wonderful team at <a href="https://pimoroni.com/">Pimoroni</a>.
+                    The GitHub Badger 2350 was created in partnership with the wonderful team at <a
+                        href="https://pimoroni.com/">Pimoroni</a>.
                 </p>
             </div>
         </div>
@@ -58,12 +72,15 @@
 
     <script src="script.js"></script>
 
-    <footer style="position: fixed; bottom: 0; left: 0; right: 0; background-color: #f0f0f0; padding: 10px; text-align: center;">
-        <a href="https://github.com/badger/badger.github.io" target="_blank" style="color: #333; text-decoration: none;">
+    <footer
+        style="position: fixed; bottom: 0; left: 0; right: 0; background-color: #f0f0f0; padding: 10px; text-align: center;">
+        <a href="https://github.com/badger/badger.github.io" target="_blank"
+            style="color: #333; text-decoration: none;">
             View source</a>
-            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
         <a href="https://viper-ide.org/" target="_blank" style="color: #333; text-decoration: none;">
             Edit code on badge</a>
     </footer>
 </body>
+
 </html>
